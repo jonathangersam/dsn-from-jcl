@@ -12,7 +12,6 @@ const raw = fs.readFileSync(INPUT_PATH, {encoding: 'utf8'})
 
 const dsns = raw.split(os.EOL)
   .map(line => {
-    // const maybeMatch = line.match(/TZSP\.[\.A-Z0-9]+/)
     const maybeMatch = line.match(re)
     return maybeMatch ? maybeMatch[0] : 'NA'
   })
