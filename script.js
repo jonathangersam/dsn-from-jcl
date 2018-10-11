@@ -1,32 +1,22 @@
 const fs = require('fs')
-const stream = require('stream')
+const os = require('os')
 
 const INPUT_PATH = './input.txt'
 const OUTPUT_PATH = './output.txt'
+const FIRST_QUALIFIER = 'TZSP' // make dynamic
 
-const instream = fs.createReadStream(INPUT_PATH, {encoding: 'utf8'})
-const outstream = fs.createWriteStream(OUTPUT_PATH, {encoding: 'utf8'})
+const replace = `${FIRST_QUALIFIER}\\.[\\.A-Z0-9]+`
+const re = new RegExp(replace)
 
-// instream.on('data', chunk => {console.log(chunk)})
+const raw = fs.readFileSync(INPUT_PATH, {encoding: 'utf8'})
 
-class LowercaseTransformer extends stream.Transform {
-  constructor(options){
-    super(options)
-  }
-  _transform(chunk, encoding, cb) {
-    const upperChunk = chunk.toString().toLowerCase()
-    console.log("***", upperChunk, '***')
-    this.push(upperChunk)
-    cb()
-  }
-}
+const dsns = raw.split(os.EOL)
+  .map(line => {
+    // const maybeMatch = line.match(/TZSP\.[\.A-Z0-9]+/)
+    const maybeMatch = line.match(re)
+    return maybeMatch ? maybeMatch[0] : 'NA'
+  })
 
-const lower = new LowercaseTransformer({encoding: 'utf8'})
+console.log(dsns)
 
-
-
-
-lower.pipe(outstream)
-
-// instream.pipe(linestream).pipe(lower).pipe(outstream)
-
+fs.writeFileSync(OUTPUT_PATH, dsns.join(os.EOL))
