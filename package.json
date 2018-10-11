@@ -2,10 +2,13 @@
   "name": "dsn-from-jcl",
   "version": "1.0.0",
   "description": "extract DSN (datasetname) from JCL (job control language)",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node spec"
   },
   "author": "Jonathan Lopez",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "ramda": "^0.25.0"
+  }
 }
