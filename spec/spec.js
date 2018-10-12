@@ -2,7 +2,7 @@ const { extractFromString, extractFromFile } = require('../index')
 
 const INPUT_FILE = './spec/input.txt'
 
-xdescribe('extractFromString()', () => {
+describe('extractFromString()', () => {
   it('should return the matching DSN part from a JCL line', () => {
     expect(extractFromString('//INFILE DD DSN=TZSP.THE.QUICK.BROWN.FOX,DISP=SHR', 'TZSP')).toEqual(['TZSP.THE.QUICK.BROWN.FOX'])
   })
