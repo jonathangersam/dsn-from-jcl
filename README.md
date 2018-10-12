@@ -1,9 +1,9 @@
 DSN From JCL
 ============
 
-Extract _Dataset Name_ (DSN) from _Job Control Language_ (JCL)
+Extract DSN _Dataset Name_ from JCL _Job Control Language_
 
-v1.0.1
+v1.1.0
 
 [![Build Status](https://travis-ci.com/jonathangersam/dsn-from-jcl.svg?branch=master)](https://travis-ci.com/jonathangersam/dsn-from-jcl) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
@@ -32,15 +32,15 @@ RESULT:
 
 Docs
 ----
-### extractFromString(text, qualifier, opt)
-- Function returns an array containing valid **DSNs** that begin with the given **qualifier** for each line in the given **text**.
+### `extractFromString(text, qualifier, opt)`
+- Returns an array containing valid **DSNs** that begin with the given **qualifier** for each line in the given **text**.
 
-### extractFromFile(filepath, qualifier, opt)
+### `extractFromFile(filepath, qualifier, opt)`
 - Behaves similarly to `extractFromString`, but reads data from the given file on disk.
 
 Build
 -----
-TBD
+No build dependencies.
 
 Test
 ----
@@ -49,4 +49,4 @@ Test
 
 About
 -----
-Coded with <3 by jonathangersam
+Coded with <3 by Jonathan Lopez
