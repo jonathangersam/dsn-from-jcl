@@ -1,4 +1,5 @@
 const fs = require('fs')
+const os = require('os')
 
 function extractFromString(text, qualifier, opt) {
   const replace = `${qualifier}\\.[\\.A-Z0-9]+`
@@ -7,14 +8,16 @@ function extractFromString(text, qualifier, opt) {
   return text.split('\n')
     .map(line => {
       const maybeMatch = line.match(re)
-      console.log({maybeMatch})
       return maybeMatch ? maybeMatch[0] : null
     })
 }
 
 function extractFromFile(filepath, qualifier, opt) {
+  const replace = `${os.EOL}`
+  const re = new RegExp(replace, 'g')
+
   const raw = fs.readFileSync(filepath, {encoding: 'utf8'})
-    .replace(/\r/g, '\n') // in case user changed encoding from os.EOL to something else, change Windows CRLF line-endings to more generic '\n'
+    .replace(re, '\n') // replace os-specific end-line chars with generic one
 
   return extractFromString(raw, qualifier, opt)
 }

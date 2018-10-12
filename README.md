@@ -9,7 +9,7 @@ v1.0.1
 
 Usage
 -----
-Want to import into your codebase? Use 'require'
+Want to use in your codebase? Import via 'require'
 
 ```javascript
 const dsn = require('dsn-from-jcl')
@@ -19,7 +19,16 @@ const result = dsn.extractFromString(sample, 'TZSP')
 console.log(result) // expect [ 'TZSP.MY.FILE' ]
 ```
 
-Want to view an example usage? Run `node example`.
+Want to run in interactive mode? Run `npm start` or `node script.js`.
+
+```
+*** EXTRACT DSN FROM JCL, INTERACTIVE MODE ***
+1) your input file path? > ./spec/input.txt
+2) your output path?> myoutput.txt
+3) 1st DSN qualifier to search for? > TZSP
+RESULT:
+ [ 'TZSP.SOME.FILE', null, 'TZSP.EXTRA.FILE.HERE' ]
+```
 
 Docs
 ----
