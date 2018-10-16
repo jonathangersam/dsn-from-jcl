@@ -3,43 +3,59 @@ const os = require('os')
 const { extractFromFile } = require('./')
 const readline = require('readline')
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-})
+main()
 
-const userInput = {
-  inputPath: '',
-  outputPath: '',
-  qualifier: '',
-}
+function main() {
+  const consoleReader = getConsoleReader()
 
-console.log('*** EXTRACT DSN FROM JCL, INTERACTIVE MODE ***')
-rl.question('1) your input file path? > ', input => {
-  userInput.inputPath = input
-  try {
-    fs.statSync(input)
-  } catch (e) {
-    console.error(`FAIL couldn't find that file` )
-    process.exit(1)
-  }
-
-  rl.question('2) your output path?> ', input => {
-    userInput.outputPath = input
-
-    rl.question('3) 1st DSN qualifier to search for? > ', input => {
-      userInput.qualifier = input
-      const { inputPath, outputPath } = userInput
-      extractDSNToFile(inputPath, outputPath, input)
-      process.exit(0)
+  console.log('*** EXTRACT DSN FROM JCL, INTERACTIVE MODE ***')
+  consoleReader.question('1) Your input file path? > ', inputPath => {
+    checkIfFileExistsOtherwiseTerminate(inputPath)
+    consoleReader.question('2) Your output path? > ', outputPath => {
+      consoleReader.question('3) First DSN qualifier to search for? > ', searchQualifier => {
+        extractDsnsAndWriteToFileOnErrorTerminate(inputPath, outputPath, searchQualifier)
+        process.exit(0)
+      })
     })
   })
-})
-
-function extractDSNToFile(input, output, qualifier) {
-  const dsns = extractFromFile(input, qualifier)
-  console.log('RESULT:\n', dsns)
-  fs.writeFileSync(output, dsns.join(os.EOL))
 }
 
-// rl.on('line', input => console.log('you said', input))
+function getConsoleReader() {
+  return readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  })
+}
+
+function checkIfFileExistsOtherwiseTerminate(filepath) {
+  try {
+    fs.statSync(filepath)
+  } catch (e) {
+    logErrorAndTerminate(`FAIL: couldn't locate ${filepath}`, e)
+  }
+}
+
+function logErrorAndTerminate(msg, err) {
+  console.error(msg, err)
+  process.exit(1)
+}
+
+function extractDsnsAndWriteToFileOnErrorTerminate(inputPath, outputPath, qualifier) {
+  try {
+    const dsns = tryExtractDsnsFromFile(inputPath, qualifier)
+    tryWriteDsnsToFile(outputPath, dsns)
+  } catch (e) {
+    logErrorAndTerminate(`FAILED to extract dsns and write to output file`, e)
+  }
+}
+
+function tryExtractDsnsFromFile(inputPath, qualifier) {
+  const dsns = extractFromFile(inputPath, qualifier)
+  console.log('OK: Extracted DSNs are:', dsns)
+  return dsns
+}
+
+function tryWriteDsnsToFile(outputPath, dsns) {
+  fs.writeFileSync(outputPath, dsns.join(os.EOL))
+  console.log('OK: Output saved to', outputPath)
+}

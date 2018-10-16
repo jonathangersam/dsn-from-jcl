@@ -1,28 +1,54 @@
 const fs = require('fs')
 const os = require('os')
+const STANDARD_LINE_BREAK = '\n'
 
-function extractFromString(text, qualifier, opt) {
-  const replace = `${qualifier}\\.[\\.A-Z0-9]+`
-  const re = new RegExp(replace)
+const lineEndPattern = new RegExp(`${os.EOL}`, 'g')
 
-  return text.split('\n')
-    .map(line => {
-      const maybeMatch = line.match(re)
-      return maybeMatch ? maybeMatch[0] : null
-    })
+/***
+ * getDsnsFromFile returns an array of DSNs that start with the given qualifier
+ * @param inputPath {String} path to file on disk
+ * @param dsnQualifier {String} 1st qualifier for DSN pattern matching
+ * @param opt {Object} options object
+ * @returns {String[]} valid DSNs per line
+ */
+function getDsnsFromFile(inputPath, dsnQualifier, opt) {
+  const fileContents = tryLoadingFileContents(inputPath)
+  const standardizedFileContents = fileContents.replace(lineEndPattern, STANDARD_LINE_BREAK)
+  return getDsnsFromString(standardizedFileContents, dsnQualifier, opt)
 }
 
-function extractFromFile(filepath, qualifier, opt) {
-  const replace = `${os.EOL}`
-  const re = new RegExp(replace, 'g')
+/***
+ * getDsnsFromString returns an array of DSNs that start with the given qualifier
+ * @param text {String}
+ * @param dsnQualifier {String} 1st qualifier for DSN pattern matching
+ * @param opt {Object} options object
+ * @returns {String[]} valid DSNs per line
+ */
+function getDsnsFromString(text, dsnQualifier, opt) {
+  const dsnPattern = getDsnRegex(dsnQualifier)
+  const lines = text.split(STANDARD_LINE_BREAK)
+  const dsns = lines.map(line => getPatternMatchOrDefault(line, dsnPattern, null))
+  return dsns
+}
 
-  const raw = fs.readFileSync(filepath, {encoding: 'utf8'})
-    .replace(re, '\n') // replace os-specific end-line chars with generic one
+function tryLoadingFileContents(inputPath) {
+  try {
+    return fs.readFileSync(inputPath, {encoding: 'utf8'})
+  } catch(e) {
+    throw new Error(`FAILED reading ${inputPath}; ` + e.toString())
+  }
+}
 
-  return extractFromString(raw, qualifier, opt)
+function getDsnRegex(dsnQualifier) {
+  return new RegExp(`${dsnQualifier}\\.[\.A-Z0-9]+`)
+}
+
+function getPatternMatchOrDefault(line, regexPattern, defaultValue) {
+  const maybeMatch = line.match(regexPattern)
+  return maybeMatch ? maybeMatch[0] : defaultValue
 }
 
 module.exports = {
-  extractFromString,
-  extractFromFile,
+  extractFromString: getDsnsFromString,
+  extractFromFile: getDsnsFromFile,
 }
