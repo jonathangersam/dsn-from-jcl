@@ -1,7 +1,7 @@
 const fs = require('fs')
 const os = require('os')
-const STANDARD_LINE_BREAK = '\n'
 
+const STANDARD_LINE_BREAK = '\n'
 const lineEndPattern = new RegExp(`${os.EOL}`, 'g')
 
 /***
@@ -12,7 +12,7 @@ const lineEndPattern = new RegExp(`${os.EOL}`, 'g')
  * @returns {String[]} valid DSNs per line
  */
 function getDsnsFromFile(inputPath, dsnQualifier, opt) {
-  const fileContents = tryLoadingFileContents(inputPath)
+  const fileContents = fs.readFileSync(inputPath, {encoding: 'utf8'})
   const standardizedFileContents = fileContents.replace(lineEndPattern, STANDARD_LINE_BREAK)
   return getDsnsFromString(standardizedFileContents, dsnQualifier, opt)
 }
@@ -25,22 +25,9 @@ function getDsnsFromFile(inputPath, dsnQualifier, opt) {
  * @returns {String[]} valid DSNs per line
  */
 function getDsnsFromString(text, dsnQualifier, opt) {
-  const dsnPattern = getDsnRegex(dsnQualifier)
-  const lines = text.split(STANDARD_LINE_BREAK)
-  const dsns = lines.map(line => getPatternMatchOrDefault(line, dsnPattern, null))
-  return dsns
-}
-
-function tryLoadingFileContents(inputPath) {
-  try {
-    return fs.readFileSync(inputPath, {encoding: 'utf8'})
-  } catch(e) {
-    throw new Error(`FAILED reading ${inputPath}; ` + e.toString())
-  }
-}
-
-function getDsnRegex(dsnQualifier) {
-  return new RegExp(`${dsnQualifier}\\.[\.A-Z0-9]+`)
+  const dsnPattern = new RegExp(`${dsnQualifier}\\.[\.A-Z0-9]+`)
+  const getDsnOrDefaultFromLine = (line) => getPatternMatchOrDefault(line, dsnPattern, null)
+  return text.split(STANDARD_LINE_BREAK).map(getDsnOrDefaultFromLine)
 }
 
 function getPatternMatchOrDefault(line, regexPattern, defaultValue) {
